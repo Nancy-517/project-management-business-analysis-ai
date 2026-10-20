@@ -1,0 +1,67 @@
+{
+  "team_id": "115",
+  "task_id": "需求A",
+  "task_evidence": {
+    "problem_boundary": [
+      {
+        "file": "evidence/01_diagnosis/需求边界.md"
+      },
+      {
+        "file": "evidence/01_diagnosis/P002_端到端案例.md"
+      }
+    ],
+    "workflow_structure": [
+      {
+        "file": "workflow.json",
+        "note": "包含状态机架构、Prompt链设计、fallback降级策略、UX护栏设计和Local-First说明"
+      }
+    ],
+    "source_and_evidence": [
+      {
+        "file": "evidence/02_sources/资料引用.md"
+      }
+    ],
+    "data_and_rules": [
+      {
+        "file": "outputs/需求A_数据与规则处理.md"
+      },
+      {
+        "file": "evidence/03_data_rules/项目风险计算.csv"
+      },
+      {
+        "file": "evidence/03_data_rules/规则风险检查.md"
+      }
+    ],
+    "human_collaboration": [
+      {
+        "file": "outputs/需求A_人工复核记录.md"
+      }
+    ],
+    "delivery_quality": [
+      {
+        "file": "outputs/需求A_诊断报告.md"
+      },
+      {
+        "file": "outputs/需求A_项目资料缺失清单.md"
+      }
+    ],
+    "ai_process": [
+      {
+        "file": "evidence/04_ai_process/AI沟通过程记录.md"
+      },
+      {
+        "file": "evidence/04_ai_process/image.png",
+        "note": "Claude Code为选手设计的原型功能规格表截图"
+      },
+      {
+        "file": "evidence/04_ai_process/image-1.png",
+        "note": "Codex编辑器中修改AI沟通过程记录的过程截图"
+      }
+    ],
+    "prototype": [
+      {
+        "file": "prototype/index.html"
+      }
+    ]
+  }
+}

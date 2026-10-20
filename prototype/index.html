@@ -1,0 +1,768 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>项目经理经营会前AI工作台</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --ink: #172033;
+      --muted: #667085;
+      --line: #d8dee9;
+      --blue: #2563eb;
+      --teal: #0f766e;
+      --green: #15803d;
+      --amber: #b45309;
+      --red: #b91c1c;
+      --violet: #6d28d9;
+      --soft-blue: #eaf1ff;
+      --soft-green: #e9f7ef;
+      --soft-amber: #fff3dd;
+      --soft-red: #fdecec;
+      --soft-violet: #f1edff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      letter-spacing: 0;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px 22px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 750;
+    }
+
+    .subtitle {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    button {
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 0 13px;
+      color: var(--ink);
+      background: #ffffff;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button.primary {
+      color: #ffffff;
+      border-color: var(--blue);
+      background: var(--blue);
+    }
+
+    button.active {
+      border-color: var(--blue);
+      color: var(--blue);
+      background: var(--soft-blue);
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: 320px minmax(520px, 1fr) 380px;
+      gap: 14px;
+      padding: 14px;
+      min-height: calc(100vh - 72px);
+    }
+
+    section {
+      min-width: 0;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    section > h2 {
+      margin: 0;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      font-size: 15px;
+      background: #fbfcfe;
+    }
+
+    .body {
+      padding: 14px;
+    }
+
+    .stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .metric {
+      min-height: 78px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      background: #ffffff;
+    }
+
+    .metric .label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .metric .value {
+      margin-top: 5px;
+      font-size: 22px;
+      font-weight: 780;
+    }
+
+    .metric .hint {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th,
+    td {
+      padding: 9px 8px;
+      border-bottom: 1px solid #edf0f5;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--muted);
+      background: #fbfcfe;
+      font-weight: 750;
+    }
+
+    tr.clickable {
+      cursor: pointer;
+    }
+
+    tr.clickable:hover {
+      background: #f8fbff;
+    }
+
+    tr.selected {
+      background: var(--soft-blue);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 0 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 750;
+      white-space: nowrap;
+    }
+
+    .pill + .pill {
+      margin-left: 4px;
+      margin-top: 4px;
+    }
+
+    .critical {
+      color: var(--red);
+      background: var(--soft-red);
+    }
+
+    .watch {
+      color: var(--amber);
+      background: var(--soft-amber);
+    }
+
+    .normal {
+      color: var(--green);
+      background: var(--soft-green);
+    }
+
+    .source {
+      color: var(--violet);
+      background: var(--soft-violet);
+    }
+
+    .ai {
+      color: var(--teal);
+      background: #e6f5f3;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(90px, 1fr));
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .step {
+      min-height: 84px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 9px;
+      background: #ffffff;
+    }
+
+    .step strong {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 12px;
+    }
+
+    .step span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .detail {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #ffffff;
+    }
+
+    .detail h3 {
+      margin: 0 0 8px;
+      font-size: 15px;
+    }
+
+    .kv {
+      display: grid;
+      grid-template-columns: 92px 1fr;
+      gap: 8px;
+      padding: 6px 0;
+      border-bottom: 1px solid #edf0f5;
+    }
+
+    .kv:last-child {
+      border-bottom: 0;
+    }
+
+    .kv b {
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    li {
+      margin: 5px 0;
+    }
+
+    .callout {
+      border-left: 4px solid var(--blue);
+      padding: 10px 12px;
+      background: #f8fbff;
+      color: var(--ink);
+    }
+
+    .chat-launcher {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 20;
+      min-width: 136px;
+      box-shadow: 0 12px 30px rgba(37, 99, 235, 0.22);
+    }
+
+    .chat-panel {
+      position: fixed;
+      right: 18px;
+      bottom: 68px;
+      z-index: 19;
+      display: none;
+      width: min(420px, calc(100vw - 36px));
+      max-height: min(640px, calc(100vh - 98px));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #ffffff;
+      box-shadow: 0 18px 42px rgba(23, 32, 51, 0.2);
+    }
+
+    .chat-panel.open {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+
+    .chat-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfcfe;
+      font-weight: 750;
+    }
+
+    .chat-log {
+      display: grid;
+      gap: 10px;
+      overflow: auto;
+      padding: 12px;
+      max-height: 430px;
+    }
+
+    .msg {
+      border-radius: 8px;
+      padding: 10px;
+      white-space: pre-wrap;
+    }
+
+    .msg.user {
+      color: #ffffff;
+      background: var(--blue);
+      justify-self: end;
+      max-width: 88%;
+    }
+
+    .msg.ai-msg {
+      color: var(--ink);
+      border: 1px solid var(--line);
+      background: #ffffff;
+    }
+
+    .chat-input {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      padding: 12px;
+      border-top: 1px solid var(--line);
+      background: #ffffff;
+    }
+
+    .chat-input input {
+      min-height: 38px;
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 0 10px;
+      font: inherit;
+    }
+
+    .quick-asks {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 0 12px 12px;
+      background: #ffffff;
+    }
+
+    .quick-asks button {
+      min-height: 30px;
+      padding: 0 9px;
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    @media (max-width: 1180px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+
+      .flow {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>项目经理经营会前AI工作台</h1>
+      <div class="subtitle">官方 P001-P008 数据驱动：项目总览、风险分诊、月报草稿、人工复核和证据留痕</div>
+    </div>
+    <div class="toolbar">
+      <button type="button" class="primary" onclick="generateTriage()">生成经营会风险分诊</button>
+      <button type="button" data-filter="全部" class="active" onclick="setFilter('全部')">全部</button>
+      <button type="button" data-filter="高优先级" onclick="setFilter('高优先级')">高优先级</button>
+      <button type="button" data-filter="关注项目" onclick="setFilter('关注项目')">关注项目</button>
+      <button type="button" data-filter="常规跟进" onclick="setFilter('常规跟进')">常规跟进</button>
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <h2>经营会总览</h2>
+      <div class="body stack">
+        <div class="metric-grid">
+          <div class="metric">
+            <div class="label">项目样本</div>
+            <div class="value">8</div>
+            <div class="hint">来自官方样例数据</div>
+          </div>
+          <div class="metric">
+            <div class="label">高优先级</div>
+            <div class="value" id="highCount">-</div>
+            <div class="hint">需经营会优先复核</div>
+          </div>
+          <div class="metric">
+            <div class="label">需人工复核</div>
+            <div class="value" id="reviewCount">-</div>
+            <div class="hint">客户反馈或规则触发</div>
+          </div>
+          <div class="metric">
+            <div class="label">工作台边界</div>
+            <div class="value">内部</div>
+            <div class="hint">不直接对外定稿</div>
+          </div>
+        </div>
+        <div class="callout">
+          AI负责汇聚、计算、分诊和生成草稿；成本、验收、责任归属和对外承诺由人工确认。
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>分组</th>
+              <th>项目</th>
+            </tr>
+          </thead>
+          <tbody id="groupTable">
+            <tr><td colspan="2">点击生成后查看</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>AI原生分诊流程与项目列表</h2>
+      <div class="body">
+        <div class="flow">
+          <div class="step"><strong>感知层</strong><span>汇聚项目记录、客户反馈、规则材料</span></div>
+          <div class="step"><strong>判断层</strong><span>计算成本、周期、质量、验收风险</span></div>
+          <div class="step"><strong>生成层</strong><span>生成经营会月报草稿</span></div>
+          <div class="step"><strong>复核层</strong><span>形成项目级人工复核任务</span></div>
+          <div class="step"><strong>证据层</strong><span>绑定数据、反馈、规则和历史案例</span></div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>项目</th>
+              <th>阶段</th>
+              <th>成本</th>
+              <th>周期</th>
+              <th>风险项</th>
+              <th>分诊</th>
+            </tr>
+          </thead>
+          <tbody id="projectRows">
+            <tr><td colspan="6">点击生成后查看</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>项目详情与人工复核</h2>
+      <div class="body stack" id="detailPanel">
+        <div class="detail">
+          <h3>待生成</h3>
+          <p>点击“生成经营会风险分诊”，再选择项目查看详情。</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <button type="button" class="primary chat-launcher" onclick="toggleChat()">AI对话模拟</button>
+  <aside class="chat-panel" id="chatPanel" aria-label="AI对话模拟">
+    <div class="chat-head">
+      <span>经营会AI助手</span>
+      <button type="button" onclick="toggleChat()">关闭</button>
+    </div>
+    <div class="chat-log" id="chatLog">
+      <div class="msg ai-msg">可以问我：P002怎么了、哪些项目需要优先处理、P005的成本变化怎么解释。回答基于本地项目数据和规则，不接入外部AI API。</div>
+    </div>
+    <div class="quick-asks">
+      <button type="button" onclick="askQuick('P002怎么了')">P002怎么了</button>
+      <button type="button" onclick="askQuick('哪些项目需要优先处理')">优先项目</button>
+      <button type="button" onclick="askQuick('P005的成本变化怎么解释')">P005成本变化</button>
+    </div>
+    <div class="chat-input">
+      <input id="chatInput" type="text" placeholder="输入问题，例如：P006为什么要复核" onkeydown="handleChatKey(event)">
+      <button type="button" class="primary" onclick="sendChat()">发送</button>
+    </div>
+  </aside>
+
+  <script>
+    const projects = [
+      { id: "P001", type: "科技服务", stage: "验收前", budget: 42, cost: 36, planned: 60, used: 55, acceptanceRisk: "中", quality: 2, satisfaction: 4.2, feedback: "", feedbackTags: "", humanReview: false },
+      { id: "P002", type: "咨询交付", stage: "执行中", budget: 28, cost: 31, planned: 45, used: 42, acceptanceRisk: "高", quality: 5, satisfaction: 3.1, feedback: "报告修改次数多，成本超预算仍未提前预警", feedbackTags: "数据异常;交付风险", humanReview: true },
+      { id: "P003", type: "检测服务", stage: "执行中", budget: 35, cost: 18, planned: 50, used: 22, acceptanceRisk: "低", quality: 1, satisfaction: 4.5, feedback: "希望复用历史检测项目模板", feedbackTags: "经验复用", humanReview: false },
+      { id: "P004", type: "展览策划", stage: "启动", budget: 20, cost: 5, planned: 35, used: 8, acceptanceRisk: "低", quality: 0, satisfaction: 4.4, feedback: "", feedbackTags: "", humanReview: false },
+      { id: "P005", type: "科技服务", stage: "执行中", budget: 55, cost: 49, planned: 75, used: 70, acceptanceRisk: "高", quality: 4, satisfaction: 3.4, feedback: "关键节点延期，客户要求解释成本变化", feedbackTags: "进度风险;数据异常", humanReview: true },
+      { id: "P006", type: "咨询交付", stage: "验收前", budget: 31, cost: 25, planned: 40, used: 39, acceptanceRisk: "中", quality: 3, satisfaction: 3.8, feedback: "验收材料版本不一致，需要确认最终模板", feedbackTags: "规则冲突", humanReview: true },
+      { id: "P007", type: "检测服务", stage: "启动", budget: 18, cost: 4, planned: 30, used: 6, acceptanceRisk: "低", quality: 0, satisfaction: 4.6, feedback: "", feedbackTags: "", humanReview: false },
+      { id: "P008", type: "科技服务", stage: "执行中", budget: 48, cost: 33, planned: 65, used: 40, acceptanceRisk: "中", quality: 2, satisfaction: 4.0, feedback: "", feedbackTags: "", humanReview: false }
+    ];
+
+    let currentFilter = "全部";
+    let selectedProjectId = null;
+
+    function pct(value) {
+      return `${(value * 100).toFixed(1)}%`;
+    }
+
+    function analyze(project) {
+      const costRate = project.cost / project.budget;
+      const cycleRate = project.used / project.planned;
+      const risks = [];
+
+      if (costRate > 0.9) risks.push("成本");
+      if (cycleRate > 0.9) risks.push("进度");
+      if (project.quality >= 3 || project.satisfaction < 3.8) risks.push("质量");
+      if (project.acceptanceRisk === "高" || project.feedbackTags.includes("规则冲突")) risks.push("验收");
+      if (project.humanReview) risks.push("反馈复核");
+
+      let group = "常规跟进";
+      if (["P002", "P005", "P006"].includes(project.id)) group = "高优先级";
+      if (project.id === "P001") group = "关注项目";
+
+      const reviewReason = {
+        P001: "验收前且周期使用率超过90%，建议确认验收材料清单。",
+        P002: "成本超预算、周期接近上限、质量问题多且客户反馈要求复核。",
+        P003: "客户希望复用历史检测项目模板，可作为经验复用动作。",
+        P004: "启动阶段暂无明显风险，保持常规跟进。",
+        P005: "关键节点延期，验收风险高，客户要求解释成本变化。",
+        P006: "验收材料版本不一致，需要审核人确认最终模板。",
+        P007: "启动阶段暂无明显风险，保持常规跟进。",
+        P008: "验收风险中，建议提前准备验收材料。"
+      }[project.id];
+
+      const action = {
+        "高优先级": "进入经营会优先复核，补齐证据后再形成对外口径。",
+        "关注项目": "纳入经营会关注清单，确认验收前材料齐备性。",
+        "常规跟进": "保持常规跟进，必要时沉淀可复用模板。"
+      }[group];
+
+      return { costRate, cycleRate, risks, group, reviewReason, action };
+    }
+
+    function pill(text, cls) {
+      return `<span class="pill ${cls}">${text}</span>`;
+    }
+
+    function groupClass(group) {
+      if (group === "高优先级") return "critical";
+      if (group === "关注项目") return "watch";
+      return "normal";
+    }
+
+    function generateTriage() {
+      selectedProjectId = selectedProjectId || "P002";
+      renderSummary();
+      renderProjects();
+      renderDetail(selectedProjectId);
+    }
+
+    function setFilter(filter) {
+      currentFilter = filter;
+      document.querySelectorAll("[data-filter]").forEach(button => {
+        button.classList.toggle("active", button.dataset.filter === filter);
+      });
+      renderProjects();
+    }
+
+    function renderSummary() {
+      const analyzed = projects.map(project => ({ project, result: analyze(project) }));
+      const high = analyzed.filter(item => item.result.group === "高优先级");
+      const review = analyzed.filter(item => item.project.humanReview || item.result.group !== "常规跟进");
+      document.getElementById("highCount").textContent = high.length;
+      document.getElementById("reviewCount").textContent = review.length;
+      document.getElementById("groupTable").innerHTML = `
+        <tr><td>${pill("高优先级", "critical")}</td><td>P002、P005、P006</td></tr>
+        <tr><td>${pill("关注项目", "watch")}</td><td>P001</td></tr>
+        <tr><td>${pill("常规跟进", "normal")}</td><td>P003、P004、P007、P008</td></tr>
+      `;
+    }
+
+    function renderProjects() {
+      const rows = projects
+        .map(project => ({ project, result: analyze(project) }))
+        .filter(item => currentFilter === "全部" || item.result.group === currentFilter)
+        .map(item => {
+          const { project, result } = item;
+          const risks = result.risks.length ? result.risks.map(risk => pill(risk, "ai")).join("") : pill("暂无明显风险", "normal");
+          const selected = selectedProjectId === project.id ? " selected" : "";
+          return `<tr class="clickable${selected}" onclick="selectProject('${project.id}')">
+            <td><strong>${project.id}</strong><br><span class="muted">${project.type}</span></td>
+            <td>${project.stage}</td>
+            <td>${pct(result.costRate)}</td>
+            <td>${pct(result.cycleRate)}</td>
+            <td>${risks}</td>
+            <td>${pill(result.group, groupClass(result.group))}</td>
+          </tr>`;
+        }).join("");
+
+      document.getElementById("projectRows").innerHTML = rows || "<tr><td colspan=\"6\">当前筛选无项目</td></tr>";
+    }
+
+    function selectProject(id) {
+      selectedProjectId = id;
+      renderProjects();
+      renderDetail(id);
+    }
+
+    function renderDetail(id) {
+      const project = projects.find(item => item.id === id);
+      const result = analyze(project);
+      const feedback = project.feedback || "暂无客户反馈记录";
+      const evidence = [
+        "项目经营样例数据.md：项目记录与客户反馈",
+        "项目风险判断口径.md：成本、周期、质量、验收规则",
+        "规则与审核清单.md：人工复核与主体责任边界"
+      ];
+      const missing = {
+        P001: "验收材料清单、客户验收前确认记录、剩余任务列表",
+        P002: "成本明细、报告修改记录、返工说明、客户反馈原文",
+        P003: "历史检测项目模板",
+        P004: "启动阶段任务清单",
+        P005: "关键节点延期说明、成本变化说明、客户沟通记录、验收计划",
+        P006: "最终验收模板、材料版本记录、客户确认记录",
+        P007: "启动阶段任务清单",
+        P008: "验收准备清单"
+      }[project.id];
+
+      document.getElementById("detailPanel").innerHTML = `
+        <div class="detail">
+          <h3>${project.id} ${pill(result.group, groupClass(result.group))}</h3>
+          <div class="kv"><b>项目阶段</b><span>${project.stage} / ${project.type}</span></div>
+          <div class="kv"><b>成本使用率</b><span>${pct(result.costRate)}，预算${project.budget}万元，已发生成本${project.cost}万元</span></div>
+          <div class="kv"><b>周期使用率</b><span>${pct(result.cycleRate)}，计划${project.planned}天，已用${project.used}天</span></div>
+          <div class="kv"><b>质量信号</b><span>质量问题${project.quality}项，客户满意度${project.satisfaction}</span></div>
+          <div class="kv"><b>验收风险</b><span>${project.acceptanceRisk}</span></div>
+          <div class="kv"><b>客户反馈</b><span>${feedback}</span></div>
+          <div class="kv"><b>AI建议</b><span>${result.action}</span></div>
+          <div class="kv"><b>复核原因</b><span>${result.reviewReason}</span></div>
+          <div class="kv"><b>待补材料</b><span>${missing}</span></div>
+        </div>
+        <div class="detail">
+          <h3>证据来源</h3>
+          <ul>${evidence.map(item => `<li>${item}</li>`).join("")}</ul>
+        </div>
+        <div class="detail">
+          <h3>主体责任边界</h3>
+          <ul>
+            <li>本页结论仅作为内部经营会前参考。</li>
+            <li>成本、验收、亏损、责任归属和对外承诺必须人工确认。</li>
+            <li>对外表达使用“建议复核”“需要确认”，不使用确定性归责措辞。</li>
+          </ul>
+        </div>
+        <div class="detail">
+          <h3>月报草稿片段</h3>
+          <p>${project.id} 当前分诊为“${result.group}”。建议在经营会前补齐相关证据，并由对应责任人确认后再进入正式报告或对外沟通。</p>
+        </div>
+      `;
+    }
+
+    function toggleChat() {
+      document.getElementById("chatPanel").classList.toggle("open");
+    }
+
+    function appendMessage(text, role) {
+      const log = document.getElementById("chatLog");
+      const div = document.createElement("div");
+      div.className = `msg ${role === "user" ? "user" : "ai-msg"}`;
+      div.textContent = text;
+      log.appendChild(div);
+      log.scrollTop = log.scrollHeight;
+    }
+
+    function askQuick(text) {
+      document.getElementById("chatInput").value = text;
+      sendChat();
+    }
+
+    function handleChatKey(event) {
+      if (event.key === "Enter") {
+        sendChat();
+      }
+    }
+
+    function sendChat() {
+      const input = document.getElementById("chatInput");
+      const question = input.value.trim();
+      if (!question) return;
+      appendMessage(question, "user");
+      appendMessage(answerQuestion(question), "ai");
+      input.value = "";
+    }
+
+    function answerQuestion(question) {
+      const normalized = question.toUpperCase();
+      const projectId = (normalized.match(/P00[1-8]/) || [])[0];
+
+      if (question.includes("优先") || question.includes("哪些项目")) {
+        return "高优先级项目：P002、P005、P006。\n依据：这些项目存在多项风险或客户反馈明确要求人工复核。\n人工确认：成本、验收、责任归属和对外承诺不能由AI直接定稿。\n证据来源：项目经营样例数据.md、项目风险判断口径.md、规则与审核清单.md。";
+      }
+
+      if (projectId) {
+        const project = projects.find(item => item.id === projectId);
+        const result = analyze(project);
+        const feedback = project.feedback || "暂无客户反馈记录";
+        const risks = result.risks.length ? result.risks.join("、") : "暂无明显风险";
+        const costText = `${pct(result.costRate)}（${project.cost}/${project.budget}万元）`;
+        const cycleText = `${pct(result.cycleRate)}（${project.used}/${project.planned}天）`;
+        const special = projectId === "P005"
+          ? "\n关于成本变化：P005成本使用率为89.1%，未超过90%阈值，但客户反馈要求解释成本变化，因此建议补充成本变化说明和客户沟通记录。"
+          : "";
+        return `${projectId} 当前分诊：${result.group}。\n风险项：${risks}。\n成本使用率：${costText}；周期使用率：${cycleText}；质量问题：${project.quality}项；满意度：${project.satisfaction}；验收风险：${project.acceptanceRisk}。\n客户反馈：${feedback}。\nAI建议：${result.action}${special}\n人工确认：该回答仅供内部经营会前参考，涉及成本、验收、责任和对外口径需人工复核。\n证据来源：项目经营样例数据.md、客户反馈表、规则与审核清单.md。`;
+      }
+
+      if (question.includes("成本")) {
+        return "成本相关问题建议先看成本使用率，再看客户反馈和项目阶段。AI只提示成本风险优先级，不能直接判断亏损。\n当前典型项目：P002成本使用率110.7%，需复核成本超预算原因；P005客户要求解释成本变化，需补充成本变化说明。\n证据来源：项目经营样例数据.md、项目风险判断口径.md。";
+      }
+
+      if (question.includes("验收") || question.includes("复核")) {
+        return "需要重点复核：P002、P005、P006、P001。\n复核重点：验收材料版本、客户确认记录、成本变化说明、报告修改记录。\n边界：AI不能确认验收通过/失败，只能提示需要审核人确认。\n证据来源：客户反馈表、规则与审核清单.md。";
+      }
+
+      return "我可以基于本地样例数据回答项目风险问题。你可以问：P002怎么了、P006为什么要复核、哪些项目需要优先处理、P005的成本变化怎么解释。所有回答都只作为内部经营会前参考。";
+    }
+
+    generateTriage();
+  </script>
+</body>
+</html>
